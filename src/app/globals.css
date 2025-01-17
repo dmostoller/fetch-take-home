@@ -1,21 +1,140 @@
+@import "leaflet/dist/leaflet.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Light theme - inspired by Fetch's palette */
+    --background: 36 33% 97%; /* Soft warm white */
+    --foreground: 274 27% 19%; /* Deep purple-gray for text */
+
+    --card: 0 0% 100%;
+    --card-foreground: 274 27% 19%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 274 27% 19%;
+
+    /* Fetch orange as primary */
+    --primary: 35 93% 64%; /* Warm orange */
+    --primary-foreground: 0 0% 100%;
+
+    /* Soft purple as secondary */
+    --secondary: 272 20% 92%; /* Light purple */
+    --secondary-foreground: 274 27% 19%;
+
+    --muted: 35 20% 94%; /* Muted warm gray */
+    --muted-foreground: 274 15% 35%;
+
+    --accent: 35 90% 92%; /* Soft orange accent */
+    --accent-foreground: 274 27% 19%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 35 10% 84%;
+    --input: 35 10% 84%;
+    --ring: 35 93% 64%;
+
+    /* Chart colors inspired by Fetch's palette */
+    --chart-1: 35 93% 64%; /* Fetch orange */
+    --chart-2: 272 40% 55%; /* Purple */
+    --chart-3: 15 80% 50%; /* Warm red */
+    --chart-4: 35 70% 75%; /* Light orange */
+    --chart-5: 272 30% 70%; /* Light purple */
+
+    --radius: 0.75rem; /* Slightly more rounded corners */
+
+    /* Skeleton loader colors */
+    --skeleton-base: 35 20% 94%;
+    --skeleton-highlight: 35 20% 98%;
+  }
+
+  .dark {
+    /* Dark theme -  dark mode with Fetch accents */
+    --background: 274 27% 12%; /* Deep purple-gray background */
+    --foreground: 35 15% 95%; /* Warm white text */
+
+    --card: 274 25% 15%;
+    --card-foreground: 35 15% 95%;
+
+    --popover: 274 25% 15%;
+    --popover-foreground: 35 15% 95%;
+
+    --primary: 35 85% 60%; /* Slightly muted orange for dark mode */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 272 20% 22%; /* Deep purple secondary */
+    --secondary-foreground: 35 15% 95%;
+
+    --muted: 274 20% 20%;
+    --muted-foreground: 35 15% 70%;
+
+    --accent: 35 85% 25%;
+    --accent-foreground: 35 15% 95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 274 20% 25%;
+    --input: 274 20% 25%;
+    --ring: 35 85% 60%;
+
+    /* Dark mode chart colors */
+    --chart-1: 35 85% 60%; /* Dark mode orange */
+    --chart-2: 272 40% 65%; /* Brighter purple */
+    --chart-3: 15 70% 55%; /* Dark mode red */
+    --chart-4: 35 60% 70%; /* Muted orange */
+    --chart-5: 272 35% 75%; /* Light purple */
+
+    /* Dark mode skeleton colors */
+    --skeleton-base: 274 20% 18%;
+    --skeleton-highlight: 274 20% 22%;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@supports (padding: max(0px)) {
+  .mb-safe {
+    margin-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* System font stack with fallbacks */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      "Circular Std",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      Helvetica,
+      Arial,
+      sans-serif,
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Segoe UI Symbol";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(0.98);
+  }
 }
