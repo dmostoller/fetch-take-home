@@ -30,10 +30,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SearchParams } from "@/lib/types";
+import { SearchParams, Location } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocations } from "@/hooks/useLocations";
+import dynamic from "next/dynamic";
+
+const Map = dynamic(() => import("./Map").then((mod) => mod.default), {
+  ssr: false,
+  loading: () => (
+    <Button variant="outline" disabled>
+      Loading Map...
+    </Button>
+  ),
+});
+
+interface ZipCodeEntry {
+  code: string;
+  label: string;
+}
 
 interface SearchProps {
   onSearch: (params: Partial<SearchParams>) => void;
@@ -107,15 +122,15 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
       <div className="flex gap-4 flex-wrap justify-center">
         {/* SORT BY SECTION */}
         <div className="flex items-center gap-2">
-          <Label htmlFor="sort">Sort</Label>
           <Select
             name="sort"
+            aria-label="Sort"
             defaultValue={defaultValues?.sort || "breed:asc"}
             onValueChange={(value) =>
               onSearch({ sort: value as "breed:asc" | "breed:desc" })
             }
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[120px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -197,7 +212,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
             value={ageMin}
             onChange={(e) => handleAgeChange("min", Number(e.target.value))}
             placeholder="Min age"
-            className="w-[80px]"
+            className="w-[60px]"
           />
           <span className="text-muted-foreground">to</span>
           <Input
@@ -206,7 +221,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
             value={ageMax}
             onChange={(e) => handleAgeChange("max", Number(e.target.value))}
             placeholder="Max age"
-            className="w-[80px]"
+            className="w-[60px]"
           />
         </div>
 
@@ -224,7 +239,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
                 variant="outline"
                 role="combobox"
                 aria-expanded={locationOpen}
-                className="w-[300px] justify-between"
+                className="w-[220px] justify-between"
               >
                 {locationValue
                   ? locationOptions.find((loc) => loc.value === locationValue)
@@ -233,7 +248,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0">
+            <PopoverContent className="w-[220px] p-0">
               <Command className="rounded-lg border shadow-md">
                 <CommandInput
                   placeholder="Type to search..."
@@ -274,6 +289,32 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
             </PopoverContent>
           </Popover>
         </div>
+        <Map
+          onBoundsSelect={async (bounds) => {
+            const response = await fetch("/api/locations", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                geoBoundingBox: bounds,
+                size: 100,
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              const newZipCodes: ZipCodeEntry[] = data.results.map(
+                (loc: Location) => ({
+                  code: loc.zip_code,
+                  label: `${loc.city}, ${loc.state} ${loc.zip_code}`,
+                }),
+              );
+              setSelectedZipCodes(newZipCodes);
+              onSearch({
+                zipCodes: newZipCodes.map((z: ZipCodeEntry) => z.code),
+              });
+            }
+          }}
+        />
         <TooltipProvider>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
@@ -313,7 +354,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
         </TooltipProvider>
       </div>
       {selectedZipCodes.length > 0 && (
-        <div className="w-full flex justify-center  gap-2">
+        <div className="w-full flex justify-center flex-wrap gap-2">
           {selectedZipCodes.map((zip) => (
             <Badge key={zip.code} variant="secondary">
               {zip.label}
