@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchParams } from "@/lib/types";
@@ -53,10 +54,15 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
     locationSearch,
     locationOpen,
   );
-
+  // console.log("Locations data:", locations);
   const [ageMin, setAgeMin] = useState<number>(defaultValues?.ageMin || 0);
   const [ageMax, setAgeMax] = useState<number>(defaultValues?.ageMax || 0);
-
+  const [selectedZipCodes, setSelectedZipCodes] = useState<
+    Array<{
+      code: string;
+      label: string;
+    }>
+  >([]);
   const breedOptions = breeds.map((breed) => ({
     label: breed,
     value: breed,
@@ -67,6 +73,24 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
       label: `${location.city}, ${location.state} ${location.zip_code}`,
       value: location.zip_code,
     })) ?? [];
+
+  const handleZipCodeSelect = (zipCode: string, label: string) => {
+    if (selectedZipCodes.length >= 10) return;
+
+    if (!selectedZipCodes.find((z) => z.code === zipCode)) {
+      const newZipCodes = [...selectedZipCodes, { code: zipCode, label }];
+      setSelectedZipCodes(newZipCodes);
+      onSearch({ zipCodes: newZipCodes.map((z) => z.code) });
+    }
+  };
+
+  const removeZipCode = (zipCode: string) => {
+    const newZipCodes = selectedZipCodes.filter((z) => z.code !== zipCode);
+    setSelectedZipCodes(newZipCodes);
+    onSearch({ zipCodes: newZipCodes.map((z) => z.code) });
+  };
+
+  // console.log("Location options:", locationOptions);
 
   const handleAgeChange = (type: "min" | "max", value: number) => {
     if (type === "min") {
@@ -81,6 +105,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
   return (
     <div className="space-y-4 p-3 bg-card rounded-lg border">
       <div className="flex gap-4 flex-wrap justify-center">
+        {/* SORT BY SECTION */}
         <div className="flex items-center gap-2">
           <Label htmlFor="sort">Sort</Label>
           <Select
@@ -99,6 +124,8 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
             </SelectContent>
           </Select>
         </div>
+
+        {/* BREED COMBOBOX SECTION */}
         <div className="flex items-center gap-2">
           <Label htmlFor="sort">Breeds</Label>
           <Popover open={open} onOpenChange={setOpen}>
@@ -159,6 +186,8 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
             </PopoverContent>
           </Popover>
         </div>
+
+        {/* AGE SELECT SECTION */}
         <div className="flex items-center gap-2">
           <Label htmlFor="sort">Age</Label>
           <Input
@@ -180,6 +209,8 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
             className="w-[80px]"
           />
         </div>
+
+        {/* LOCATION COMBOBOX SECTION */}
         <div className="flex items-center gap-2">
           <Label htmlFor="location">Location</Label>
           <Popover
@@ -203,40 +234,42 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[300px] p-0">
-              <Command>
+              <Command className="rounded-lg border shadow-md">
                 <CommandInput
                   placeholder="Type to search..."
                   value={locationSearch}
-                  onValueChange={setLocationSearch}
+                  onValueChange={(value) => {
+                    setLocationSearch(value);
+                    if (!locationOpen) {
+                      setLocationOpen(true);
+                    }
+                  }}
                 />
-                <CommandList>
-                  <CommandEmpty>
-                    {isLoading ? "Loading..." : "No locations found."}
-                  </CommandEmpty>
-                  <CommandGroup>
-                    {locationOptions.map((location) => (
-                      <CommandItem
-                        key={location.value}
-                        value={location.value}
-                        onSelect={() => {
-                          setLocationValue(location.value);
-                          onSearch({ zipCodes: [location.value] });
-                          setLocationOpen(false);
-                        }}
-                      >
-                        {location.label}
-                        <Check
-                          className={cn(
-                            "ml-auto h-4 w-4",
-                            locationValue === location.value
-                              ? "opacity-100"
-                              : "opacity-0",
-                          )}
-                        />
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
+                <div className="border-t border-gray-200">
+                  <CommandList>
+                    <CommandEmpty>
+                      {isLoading ? "Loading..." : "No locations found."}
+                    </CommandEmpty>
+                    {locationOptions.length > 0 && (
+                      <CommandGroup>
+                        {locationOptions.map((location) => (
+                          <CommandItem
+                            key={location.value}
+                            onSelect={() => {
+                              handleZipCodeSelect(
+                                location.value,
+                                location.label,
+                              );
+                              setLocationOpen(false);
+                            }}
+                          >
+                            {location.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                  </CommandList>
+                </div>
               </Command>
             </PopoverContent>
           </Popover>
@@ -248,7 +281,12 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
                 variant="outline"
                 size="icon"
                 disabled={
-                  !value && ageMin === 0 && ageMax === 0 && !locationValue
+                  !value &&
+                  ageMin === 0 &&
+                  ageMax === 0 &&
+                  !locationValue &&
+                  selectedZipCodes.length === 0 &&
+                  !locationSearch
                 }
                 onClick={() => {
                   setValue("");
@@ -256,6 +294,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
                   setAgeMax(0);
                   setLocationValue("");
                   setLocationSearch("");
+                  setSelectedZipCodes([]);
                   onSearch({
                     breeds: [],
                     ageMin: undefined,
@@ -273,6 +312,21 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
           </Tooltip>
         </TooltipProvider>
       </div>
+      {selectedZipCodes.length > 0 && (
+        <div className="w-full flex justify-center  gap-2">
+          {selectedZipCodes.map((zip) => (
+            <Badge key={zip.code} variant="secondary">
+              {zip.label}
+              <button
+                className="ml-1 hover:text-destructive"
+                onClick={() => removeZipCode(zip.code)}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

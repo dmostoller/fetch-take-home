@@ -55,7 +55,7 @@ export default function Home() {
           </header>
         </>
       )}
-      <main className="flex-1 flex items-center justify-center w-full max-w-screen-full mx-auto">
+      <main className="flex-1 flex justify-center w-full max-w-screen-full mx-auto">
         <div className="">
           {!isAuthenticated && <LoginForm />}
           {isAuthenticated && (

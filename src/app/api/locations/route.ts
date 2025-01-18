@@ -4,8 +4,8 @@ import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    const cookieStore = await cookies();
     const body: LocationSearchParams = await request.json();
-
     const params = {
       ...body,
       size: body.size || 500,
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Cookie: cookies().toString(),
+          Cookie: cookieStore.toString(),
         },
         body: JSON.stringify(params),
       },

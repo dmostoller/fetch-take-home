@@ -97,7 +97,7 @@ const FavoritesList = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[700px] pr-4">
+        <ScrollArea className="h-[calc(100vh-200px)]  pr-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {dogs.map((dog) => (
               <DogCard

@@ -8,29 +8,15 @@ export function useLocations(searchTerm: string = "", isOpen: boolean = false) {
   return useQuery<LocationSearchResponse>({
     queryKey: ["locations", debouncedSearch],
     queryFn: async () => {
-      if (isOpen && !debouncedSearch) {
-        const response = await fetch("/api/locations", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ size: 500 }),
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch locations");
-        return response.json();
-      }
-
-      const isStateCode = debouncedSearch.length === 2;
-
-      // Move the length check after state code check
-      if (!isStateCode && debouncedSearch.length < 2) {
-        return { results: [], total: 0 };
-      }
+      if (!isOpen) return { results: [], total: 0 };
 
       const params: LocationSearchParams = {
-        size: 100,
-        ...(isStateCode
+        size: 1000,
+        ...(debouncedSearch.length === 2
           ? { states: [debouncedSearch.toUpperCase()] }
-          : { city: debouncedSearch }),
+          : debouncedSearch.length > 2
+            ? { city: debouncedSearch }
+            : {}),
       };
 
       const response = await fetch("/api/locations", {
@@ -42,6 +28,7 @@ export function useLocations(searchTerm: string = "", isOpen: boolean = false) {
       if (!response.ok) throw new Error("Failed to search locations");
       return response.json();
     },
-    enabled: isOpen || debouncedSearch.length >= 2,
+    enabled: isOpen,
+    staleTime: 1000,
   });
 }

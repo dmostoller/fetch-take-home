@@ -8,7 +8,9 @@ export function useDogs(params: SearchParams) {
       const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          value.forEach((v) => searchParams.append(key, v));
+          if (value.length > 0) {
+            value.forEach((v) => searchParams.append(key, v));
+          }
         } else if (value !== undefined) {
           searchParams.append(key, value.toString());
         }
