@@ -1,40 +1,44 @@
 import { useQuery } from "@tanstack/react-query";
 import { LocationSearchParams, LocationSearchResponse } from "@/lib/types";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
-const DEFAULT_LOCATION_PARAMS = {
-  size: 25,
-  from: 0,
-};
+export function useLocations(searchTerm: string = "", isOpen: boolean = false) {
+  const debouncedSearch = useDebouncedValue(searchTerm, 300);
 
-export function useLocations(params?: LocationSearchParams) {
-  // Query for all locations
-  const allLocationsQuery = useQuery<LocationSearchResponse>({
-    queryKey: ["locations"],
+  return useQuery<LocationSearchResponse>({
+    queryKey: ["locations", debouncedSearch],
     queryFn: async () => {
+      if (isOpen && !debouncedSearch) {
+        const response = await fetch("/api/locations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ size: 500 }),
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch locations");
+        return response.json();
+      }
+
+      if (!debouncedSearch) return { results: [], total: 0 };
+
+      const params: LocationSearchParams = {
+        size: 10000,
+        city: debouncedSearch,
+        states:
+          debouncedSearch.length === 2
+            ? [debouncedSearch.toUpperCase()]
+            : undefined,
+      };
+
       const response = await fetch("/api/locations", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!response.ok) throw new Error("Failed to fetch locations");
-      return response.json();
-    },
-  });
-
-  // Query for filtered locations
-  const filteredLocationsQuery = useQuery<LocationSearchResponse>({
-    queryKey: ["locations", params],
-    queryFn: async () => {
-      const response = await fetch("/api/locations/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...DEFAULT_LOCATION_PARAMS, ...params }),
+        body: JSON.stringify(params),
       });
+
       if (!response.ok) throw new Error("Failed to search locations");
       return response.json();
     },
-    enabled: !!params,
+    enabled: isOpen || debouncedSearch.length >= 2,
   });
-
-  // Return filtered results if params exist, otherwise return all locations
-  return params ? filteredLocationsQuery : allLocationsQuery;
 }

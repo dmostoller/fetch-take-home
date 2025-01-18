@@ -14,7 +14,6 @@ export interface SearchParams {
   ageMax?: number;
   size?: number;
   from?: number;
-  location?: string;
   sort?: "breed:asc" | "breed:desc";
 }
 
@@ -53,15 +52,6 @@ export interface PaginationProps {
   onChange: (page: number) => void;
 }
 
-export interface Location {
-  zip_code: string;
-  latitude: number;
-  longitude: number;
-  city: string;
-  state: string;
-  county: string;
-}
-
 export interface SearchParams {
   breeds?: string[];
   zipCodes?: string[];
@@ -72,30 +62,19 @@ export interface SearchParams {
   location?: string;
   sort?: "breed:asc" | "breed:desc";
 }
-
 export interface LocationSearchParams {
   city?: string;
   states?: string[];
-  geoBoundingBox?: {
-    top?: Coordinates;
-    left?: Coordinates;
-    bottom?: Coordinates;
-    right?: Coordinates;
-    bottom_left?: Coordinates;
-    top_right?: Coordinates;
-  };
   size?: number;
-  from?: number;
 }
 
-export interface Coordinates {
-  lat: number;
-  lon: number;
+export interface Location {
+  city: string;
+  state: string;
+  zip_code: string;
 }
 
 export interface LocationSearchResponse {
   results: Location[];
   total: number;
-  next?: string;
-  prev?: string;
 }

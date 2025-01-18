@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import { useDogs, useBreeds } from "@/hooks/useDogs";
-// import { useLocations } from "@/hooks/useLocations";
+import { DogCardSkeleton } from "./DogCardSkeleton";
 import { DogCard } from "./DogCard";
 import { Search } from "./Search";
 import { SearchParams } from "@/lib/types";
@@ -17,7 +19,6 @@ export function DogsList() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   const { data: breeds } = useBreeds();
-  // const { data: locations, isLoading: locationsLoading } = useLocations();
   const { data, isLoading } = useDogs(params);
 
   const updateSearch = (newParams: Partial<SearchParams>) => {
@@ -36,26 +37,36 @@ export function DogsList() {
     });
   };
 
-  if (isLoading) return <div>Loading...</div>;
-
   return (
-    <div className="space-y-6 p-4 max-w-screen-lg mx-auto">
+    <div className="space-y-6 p-4 max-w-screen-2xl mx-auto">
       <Search
         onSearch={updateSearch}
         breeds={breeds || []}
         defaultValues={params}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data?.dogs.map((dog) => (
-          <DogCard
-            key={dog.id}
-            dog={dog}
-            onFavorite={toggleFavorite}
-            isFavorite={favorites.has(dog.id)}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex flex-wrap justify-center gap-4">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <DogCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : data?.dogs.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          No dogs found, please adjust your search parameters and try again
+        </div>
+      ) : (
+        <div className="flex flex-wrap justify-center gap-4">
+          {data?.dogs.map((dog) => (
+            <DogCard
+              key={dog.id}
+              dog={dog}
+              onFavorite={toggleFavorite}
+              isFavorite={favorites.has(dog.id)}
+            />
+          ))}
+        </div>
+      )}
 
       <Pagination
         total={data?.total || 0}

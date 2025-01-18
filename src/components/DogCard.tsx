@@ -1,9 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Dog } from "@/lib/types";
 import Image from "next/image";
 import { useFavorites } from "@/context/FavoritesContext";
-import { Heart, HeartOff } from "lucide-react";
+import { Heart, MapPin } from "lucide-react";
 
 interface DogCardProps {
   dog: Dog;
@@ -23,46 +24,51 @@ export function DogCard({ dog }: DogCardProps) {
   };
 
   return (
-    <Card className="w-[300px]">
-      <CardHeader>
-        <CardTitle>{dog.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="relative h-[200px] w-full">
-          <Image
-            src={dog.img}
-            alt={dog.name}
-            fill
-            sizes="(min-width: 640px) 300px, 200px"
-            className="object-cover rounded-md"
+    <Card className="w-[300px] overflow-hidden transition-all hover:shadow-lg">
+      <div className="relative h-[250px] w-full">
+        <Image
+          src={dog.img}
+          alt={dog.name}
+          fill
+          sizes="(min-width: 640px) 300px, 200px"
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <CardTitle className="absolute bottom-4 left-4 text-2xl font-bold text-white">
+          {dog.name}
+        </CardTitle>
+      </div>
+
+      <CardContent className="space-y-6 p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Badge variant="secondary" className="text-sm font-medium">
+              {dog.breed}
+            </Badge>
+            <span className="text-sm text-muted-foreground">
+              {dog.age} {dog.age === 1 ? "year" : "years"} old
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            <span>{dog.zip_code}</span>
+          </div>
+        </div>
+
+        <Button
+          onClick={handleFavoriteClick}
+          variant={isFavorite(dog.id) ? "secondary" : "default"}
+          className="w-full gap-2 font-medium transition-colors"
+        >
+          <Heart
+            className={`h-4 w-4 ${
+              isFavorite(dog.id) ? "fill-current text-red-500" : "text-current"
+            }`}
           />
-        </div>
-        <div className="space-y-2">
-          <p>
-            <strong>Breed:</strong> {dog.breed}
-          </p>
-          <p>
-            <strong>Age:</strong> {dog.age} years
-          </p>
-          <p>
-            <strong>Location:</strong> {dog.zip_code}
-          </p>
-          <Button
-            onClick={handleFavoriteClick}
-            variant={isFavorite(dog.id) ? "default" : "outline"}
-            className="w-full flex items-center gap-2"
-          >
-            {isFavorite(dog.id) ? (
-              <>
-                <Heart className="h-4 w-4" /> Favorited
-              </>
-            ) : (
-              <>
-                <HeartOff className="h-4 w-4" /> Add to Favorites
-              </>
-            )}
-          </Button>
-        </div>
+          {isFavorite(dog.id) ? "Favorited" : "Add to Favorites"}
+        </Button>
       </CardContent>
     </Card>
   );

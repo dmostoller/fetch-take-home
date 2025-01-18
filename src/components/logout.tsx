@@ -5,7 +5,11 @@ export function LogoutButton() {
   const { logout, logoutPending } = useAuth();
 
   return (
-    <Button onClick={() => logout()} disabled={logoutPending} variant="default">
+    <Button
+      onClick={() => logout()}
+      disabled={logoutPending}
+      variant="secondary"
+    >
       {logoutPending ? "Logging out..." : "Logout"}
     </Button>
   );

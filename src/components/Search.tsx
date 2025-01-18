@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -19,35 +20,40 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { SearchParams, Location } from "@/lib/types";
+import { SearchParams } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLocations } from "@/hooks/useLocations";
 
 interface SearchProps {
   onSearch: (params: Partial<SearchParams>) => void;
   breeds?: string[];
-  locations?: Location[];
   defaultValues?: Partial<SearchParams>;
 }
 
-export function Search({
-  onSearch,
-  breeds = [],
-  locations = [],
-  defaultValues,
-}: SearchProps) {
+export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
   const [open, setOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [value, setValue] = useState(defaultValues?.breeds?.[0] || "");
-  const [locationValue, setLocationValue] = useState(
-    defaultValues?.location || "",
+  const [locationValue, setLocationValue] = useState<string>(
+    defaultValues?.zipCodes?.[0] || "",
   );
   const [search, setSearch] = useState("");
   const [locationSearch, setLocationSearch] = useState("");
+  const { data: locations, isLoading } = useLocations(
+    locationSearch,
+    locationOpen,
+  );
+
   const [ageMin, setAgeMin] = useState<number>(defaultValues?.ageMin || 0);
   const [ageMax, setAgeMax] = useState<number>(defaultValues?.ageMax || 0);
 
@@ -56,10 +62,11 @@ export function Search({
     value: breed,
   }));
 
-  const locationOptions = locations.map((location) => ({
-    label: `${location.city}, ${location.state} ${location.zip_code}`,
-    value: location.zip_code,
-  }));
+  const locationOptions =
+    locations?.results.map((location) => ({
+      label: `${location.city}, ${location.state} ${location.zip_code}`,
+      value: location.zip_code,
+    })) ?? [];
 
   const handleAgeChange = (type: "min" | "max", value: number) => {
     if (type === "min") {
@@ -72,10 +79,10 @@ export function Search({
   };
 
   return (
-    <div className="space-y-4 p-4 bg-card rounded-lg">
-      <div className="flex gap-4">
+    <div className="space-y-4 p-4 bg-card rounded-lg border">
+      <div className="flex gap-4 flex-wrap">
         <div className="flex items-center gap-2">
-          <Label htmlFor="sort">Sort by</Label>
+          <Label htmlFor="sort">Sort</Label>
           <Select
             name="sort"
             defaultValue={defaultValues?.sort || "breed:asc"}
@@ -100,7 +107,7 @@ export function Search({
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
-                className="w-[200px] justify-between"
+                className="w-[250px] justify-between"
               >
                 {value
                   ? breedOptions.find((breed) => breed.value === value)?.label
@@ -108,7 +115,7 @@ export function Search({
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="w-[250px] p-0">
               <Command>
                 <CommandInput
                   value={search}
@@ -173,67 +180,98 @@ export function Search({
             className="w-[80px]"
           />
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <Label htmlFor="location">Location</Label>
-        <Popover open={locationOpen} onOpenChange={setLocationOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={locationOpen}
-              className="w-[300px] justify-between"
-            >
-              {locationValue
-                ? locationOptions.find((loc) => loc.value === locationValue)
-                    ?.label
-                : "Select location..."}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[300px] p-0">
-            <Command>
-              <CommandInput
-                placeholder="Search locations..."
-                className="h-9"
-                value={locationSearch}
-                onValueChange={setLocationSearch}
-              />
-              <CommandList>
-                <CommandEmpty>No location found.</CommandEmpty>
-                <CommandGroup>
-                  {locationOptions
-                    .filter((loc) =>
-                      loc.label
-                        .toLowerCase()
-                        .includes(locationSearch.toLowerCase()),
-                    )
-                    .map((loc) => (
+        <div className="flex items-center gap-2">
+          <Label htmlFor="location">Location</Label>
+          <Popover
+            open={locationOpen}
+            onOpenChange={(open) => {
+              setLocationOpen(open);
+            }}
+          >
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={locationOpen}
+                className="w-[300px] justify-between"
+              >
+                {locationValue
+                  ? locationOptions.find((loc) => loc.value === locationValue)
+                      ?.label
+                  : "Search by city or state..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-0">
+              <Command>
+                <CommandInput
+                  placeholder="Type to search..."
+                  value={locationSearch}
+                  onValueChange={setLocationSearch}
+                />
+                <CommandList>
+                  <CommandEmpty>
+                    {isLoading ? "Loading..." : "No locations found."}
+                  </CommandEmpty>
+                  <CommandGroup>
+                    {locationOptions.map((location) => (
                       <CommandItem
-                        key={loc.value}
-                        value={loc.value}
+                        key={location.value}
+                        value={location.value}
                         onSelect={() => {
-                          setLocationValue(loc.value);
-                          onSearch({ location: loc.value });
+                          setLocationValue(location.value);
+                          onSearch({ zipCodes: [location.value] });
                           setLocationOpen(false);
                         }}
                       >
-                        {loc.label}
+                        {location.label}
                         <Check
                           className={cn(
                             "ml-auto h-4 w-4",
-                            locationValue === loc.value
+                            locationValue === location.value
                               ? "opacity-100"
                               : "opacity-0",
                           )}
                         />
                       </CommandItem>
                     ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={
+                  !value && ageMin === 0 && ageMax === 0 && !locationValue
+                }
+                onClick={() => {
+                  setValue("");
+                  setAgeMin(0);
+                  setAgeMax(0);
+                  setLocationValue("");
+                  setLocationSearch("");
+                  onSearch({
+                    breeds: [],
+                    ageMin: undefined,
+                    ageMax: undefined,
+                    zipCodes: [],
+                  });
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>Clear Selection</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );
