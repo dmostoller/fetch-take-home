@@ -38,7 +38,7 @@ export function DogsList() {
   };
 
   return (
-    <div className="space-y-6 p-4 max-w-screen-2xl mx-auto">
+    <div className="space-y-6 px-4 max-w-screen-xl mx-auto mb-6">
       <Search
         onSearch={updateSearch}
         breeds={breeds || []}

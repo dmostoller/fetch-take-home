@@ -79,8 +79,8 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
   };
 
   return (
-    <div className="space-y-4 p-4 bg-card rounded-lg border">
-      <div className="flex gap-4 flex-wrap">
+    <div className="space-y-4 p-3 bg-card rounded-lg border">
+      <div className="flex gap-4 flex-wrap justify-center">
         <div className="flex items-center gap-2">
           <Label htmlFor="sort">Sort</Label>
           <Select

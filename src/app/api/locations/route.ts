@@ -6,6 +6,11 @@ export async function POST(request: NextRequest) {
   try {
     const body: LocationSearchParams = await request.json();
 
+    const params = {
+      ...body,
+      size: body.size || 500,
+    };
+
     const response = await fetch(
       "https://frontend-take-home-service.fetch.com/locations/search",
       {
@@ -14,7 +19,7 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
           Cookie: cookies().toString(),
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(params),
       },
     );
 

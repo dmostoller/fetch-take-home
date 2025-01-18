@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { authApi } from "../app/api/auth";
+import { authApi } from "@/lib/auth";
 import { LoginCredentials } from "@/lib/types";
 import { toast } from "sonner";
 

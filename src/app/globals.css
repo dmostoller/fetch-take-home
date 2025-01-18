@@ -2,75 +2,116 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Light theme - inspired by Fetch's warm, friendly palette */
+    --background: 36 33% 97%; /* Soft warm white */
+    --foreground: 274 27% 19%; /* Deep purple-gray for text */
+
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 274 27% 19%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 274 27% 19%;
+
+    /* Fetch orange as primary */
+    --primary: 35 93% 64%; /* Warm orange */
+    --primary-foreground: 0 0% 100%;
+
+    /* Soft purple as secondary */
+    --secondary: 272 20% 92%; /* Light purple */
+    --secondary-foreground: 274 27% 19%;
+
+    --muted: 35 20% 94%; /* Muted warm gray */
+    --muted-foreground: 274 15% 35%;
+
+    --accent: 35 90% 92%; /* Soft orange accent */
+    --accent-foreground: 274 27% 19%;
+
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --skeleton-base: #f4f4f5;
-    --skeleton-highlight: #e4e4e7;
+
+    --border: 35 10% 84%;
+    --input: 35 10% 84%;
+    --ring: 35 93% 64%;
+
+    /* Chart colors inspired by Fetch's palette */
+    --chart-1: 35 93% 64%; /* Fetch orange */
+    --chart-2: 272 40% 55%; /* Purple */
+    --chart-3: 15 80% 50%; /* Warm red */
+    --chart-4: 35 70% 75%; /* Light orange */
+    --chart-5: 272 30% 70%; /* Light purple */
+
+    --radius: 0.75rem; /* Slightly more rounded corners */
+
+    /* Skeleton loader colors */
+    --skeleton-base: 35 20% 94%;
+    --skeleton-highlight: 35 20% 98%;
   }
+
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    /* Dark theme - sophisticated dark mode with Fetch accents */
+    --background: 274 27% 12%; /* Deep purple-gray background */
+    --foreground: 35 15% 95%; /* Warm white text */
+
+    --card: 274 25% 15%;
+    --card-foreground: 35 15% 95%;
+
+    --popover: 274 25% 15%;
+    --popover-foreground: 35 15% 95%;
+
+    --primary: 35 85% 60%; /* Slightly muted orange for dark mode */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 272 20% 22%; /* Deep purple secondary */
+    --secondary-foreground: 35 15% 95%;
+
+    --muted: 274 20% 20%;
+    --muted-foreground: 35 15% 70%;
+
+    --accent: 35 85% 25%;
+    --accent-foreground: 35 15% 95%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --skeleton-base: #27272a;
-    --skeleton-highlight: #3f3f46;
+
+    --border: 274 20% 25%;
+    --input: 274 20% 25%;
+    --ring: 35 85% 60%;
+
+    /* Dark mode chart colors */
+    --chart-1: 35 85% 60%; /* Dark mode orange */
+    --chart-2: 272 40% 65%; /* Brighter purple */
+    --chart-3: 15 70% 55%; /* Dark mode red */
+    --chart-4: 35 60% 70%; /* Muted orange */
+    --chart-5: 272 35% 75%; /* Light purple */
+
+    /* Dark mode skeleton colors */
+    --skeleton-base: 274 20% 18%;
+    --skeleton-highlight: 274 20% 22%;
   }
 }
 
+/* System font stack with improved fallbacks */
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-family:
+      "Circular Std",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      Helvetica,
+      Arial,
+      sans-serif,
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Segoe UI Symbol";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

@@ -80,7 +80,7 @@ const FavoritesList = () => {
   }
 
   return (
-    <Card className="w-full h-full">
+    <Card className="w-full h-full mb-8 max-w-screen-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -97,8 +97,8 @@ const FavoritesList = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[600px] pr-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <ScrollArea className="h-[700px] pr-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {dogs.map((dog) => (
               <DogCard
                 key={dog.id}

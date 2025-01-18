@@ -4,7 +4,7 @@ import { Badge } from "./ui/badge";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { RefreshCw, MapPin, PartyPopper, Bone } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import ReactConfetti from "react-confetti";
 import { useWindowSize } from "react-use";
 
@@ -31,7 +31,7 @@ export function MatchedDog({ dog, onReset }: MatchedDogProps) {
         transition={{ duration: 0.8, ease: "easeOut" }}
         style={{ perspective: 1000 }}
       >
-        <Card className="w-full max-w-2xl mx-auto overflow-hidden">
+        <Card className="w-full max-w-2xl mx-auto overflow-hidden mb-8">
           <motion.div
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}

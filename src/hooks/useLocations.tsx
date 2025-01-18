@@ -19,15 +19,18 @@ export function useLocations(searchTerm: string = "", isOpen: boolean = false) {
         return response.json();
       }
 
-      if (!debouncedSearch) return { results: [], total: 0 };
+      const isStateCode = debouncedSearch.length === 2;
+
+      // Move the length check after state code check
+      if (!isStateCode && debouncedSearch.length < 2) {
+        return { results: [], total: 0 };
+      }
 
       const params: LocationSearchParams = {
-        size: 10000,
-        city: debouncedSearch,
-        states:
-          debouncedSearch.length === 2
-            ? [debouncedSearch.toUpperCase()]
-            : undefined,
+        size: 100,
+        ...(isStateCode
+          ? { states: [debouncedSearch.toUpperCase()] }
+          : { city: debouncedSearch }),
       };
 
       const response = await fetch("/api/locations", {
