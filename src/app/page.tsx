@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { DogsList } from "@/components/DogsList";
-import { LoginForm } from "@/components/Login";
+import { LoginForm } from "@/components/login";
 import { useAuth } from "@/hooks/useAuth";
 import FavoritesList from "@/components/FavoritesList";
 import { Header } from "@/components/Header";

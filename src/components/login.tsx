@@ -38,7 +38,6 @@ export function LoginForm() {
 
   return (
     <div className="grid lg:grid-cols-2 min-h-screen min-w-screen">
-      {/* Left Column - Login Form */}
       <div className="flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-sm space-y-8">
           <div className="space-y-2">
@@ -92,7 +91,6 @@ export function LoginForm() {
         </div>
       </div>
 
-      {/* Right Column - Features */}
       <div className="hidden lg:flex flex-col justify-center p-8 bg-gradient-to-br from-[hsl(35,93%,64%)] to-[hsl(35,93%,45%)] text-zinc-900">
         <div className="w-full mx-auto space-y-12">
           <div className="space-y-2">

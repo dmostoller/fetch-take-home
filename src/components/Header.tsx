@@ -4,7 +4,7 @@ import { Drawer } from "vaul";
 import { Menu, Search, FolderHeart } from "lucide-react";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./ModeToggle";
-import { LogoutButton } from "./Logout";
+import { LogoutButton } from "./logout";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
