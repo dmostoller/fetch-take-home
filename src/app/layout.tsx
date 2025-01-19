@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/context/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/context/Providers";
 import "./globals.css";
+import Script from "next/script";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 
 const geistSans = Geist({
@@ -17,6 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://fetch-take-home-seven.vercel.app/"),
   title: "Fetch Finder | Technical Assessment",
   description:
     "A demo application built for Fetch's Frontend Engineering technical assessment. Features include dog shelter search, breed filtering, favoriting, and match generation.",
@@ -75,6 +77,20 @@ export default function RootLayout({
             </FavoritesProvider>
           </Providers>
         </ThemeProvider>
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=G-8GD9Y9BR4V`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-8GD9Y9BR4V');
+            `}
+          </Script>
+        </>
       </body>
     </html>
   );
