@@ -3,6 +3,7 @@ import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Github } from "lucide-react";
 
 export function Footer() {
   const { theme, resolvedTheme } = useTheme();
@@ -23,7 +24,7 @@ export function Footer() {
 
   return (
     <footer className="w-full border-t">
-      <div className="max-w-screen-xl mx-auto p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="max-w-screen-2xl mx-auto p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="https://fetch.com" target="_blank">
             <Image
@@ -31,6 +32,7 @@ export function Footer() {
               alt="Fetch Logo"
               width={100}
               height={40}
+              style={{ width: "100px", height: "40px" }}
               className="object-contain"
             />
           </Link>
@@ -45,16 +47,26 @@ export function Footer() {
             Fetch Rewards
           </Link>
         </p>
-        <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()}{" "}
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()}{" "}
+            <Link
+              href="https://www.davidmostoller.com"
+              target="_blank"
+              className="hover:text-foreground transition-colors"
+            >
+              David Mostoller
+            </Link>
+          </p>
           <Link
-            href="https://www.davidmostoller.com"
+            href="https://github.com/dmostoller/fetch-take-home"
             target="_blank"
-            className="hover:text-foreground transition-colors"
+            className="p-2 rounded-md hover:bg-secondary transition-all duration-300 hover:scale-110"
+            aria-label="View project on GitHub"
           >
-            David Mostoller
+            <Github className="h-5 w-5" />
           </Link>
-        </p>
+        </div>
       </div>
     </footer>
   );

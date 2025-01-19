@@ -122,6 +122,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
       <div className="flex gap-4 flex-wrap justify-center">
         {/* SORT BY SECTION */}
         <div className="flex items-center gap-2">
+          <Label htmlFor="sort">Sort by</Label>
           <Select
             name="sort"
             aria-label="Sort"
@@ -142,7 +143,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
 
         {/* BREED COMBOBOX SECTION */}
         <div className="flex items-center gap-2">
-          <Label htmlFor="sort">Breeds</Label>
+          <Label htmlFor="breeds">Breeds</Label>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -204,7 +205,7 @@ export function Search({ onSearch, breeds = [], defaultValues }: SearchProps) {
 
         {/* AGE SELECT SECTION */}
         <div className="flex items-center gap-2">
-          <Label htmlFor="sort">Age</Label>
+          <Label htmlFor="age">Age</Label>
           <Input
             type="number"
             min={0}

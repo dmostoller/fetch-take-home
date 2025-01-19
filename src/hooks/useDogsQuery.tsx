@@ -19,6 +19,6 @@ export function useDogsQuery(dogIds: string[]) {
     queryKey: ["dogs", dogIds],
     queryFn: () => getDogsByIds(dogIds),
     enabled: dogIds.length > 0,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 }

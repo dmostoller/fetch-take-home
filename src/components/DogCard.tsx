@@ -24,25 +24,25 @@ export function DogCard({ dog }: DogCardProps) {
   };
 
   return (
-    <Card className="w-[300px] overflow-hidden transition-all hover:shadow-lg">
-      <div className="relative h-[250px] w-full">
+    <Card className="w-full max-w-md mx-auto overflow-hidden transition-all hover:shadow-lg">
+      <div className="relative w-full aspect-[4/3]">
         <Image
           src={dog.img}
           alt={dog.name}
           fill
-          sizes="(min-width: 640px) 300px, 200px"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <CardTitle className="absolute bottom-4 left-4 text-2xl font-bold text-white">
+        <CardTitle className="absolute bottom-4 left-4 text-xl sm:text-2xl font-bold text-white">
           {dog.name}
         </CardTitle>
       </div>
 
-      <CardContent className="space-y-6 p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
+      <CardContent className="space-y-4 p-4 sm:p-6">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <Badge variant="secondary" className="text-sm font-medium">
               {dog.breed}
             </Badge>
