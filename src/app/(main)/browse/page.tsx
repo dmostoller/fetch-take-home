@@ -3,6 +3,7 @@
 import { DogsList } from "@/components/DogsList";
 import { useAuth } from "@/hooks/useAuth";
 import { MatchmakerButton } from "@/components/matchmaker/MatchmakerButton";
+import AIChatWindow from "@/components/AIChatWindow";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -19,9 +20,12 @@ export default function Home() {
         </div>
       </main>
       {isAuthenticated && (
-        <div className="fixed bottom-4 right-4 z-10 hidden md:block">
-          <MatchmakerButton />
-        </div>
+        <>
+          <AIChatWindow />
+          <div className="fixed bottom-4 right-4 z-10 hidden md:block">
+            <MatchmakerButton />
+          </div>
+        </>
       )}
     </div>
   );

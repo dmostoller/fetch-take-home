@@ -84,3 +84,19 @@ export interface MatchmakerSelections {
   breeds: string[];
   ageRange: "young" | "adult" | "senior" | "";
 }
+
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+  id?: string;
+  function_call?: {
+    name: string;
+    arguments: string;
+  };
+}
+
+export interface AIMatchmakerFunctions {
+  searchDogs: (params: MatchmakerSelections) => Promise<SearchResponse>;
+  getBreeds: () => Promise<string[]>;
+  generateMatch: (dogIds: string[]) => Promise<MatchResponse>;
+}
