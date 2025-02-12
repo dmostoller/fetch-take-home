@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ReactMarkdown from "react-markdown";
+import { MatchedDog } from "./MatchedDog";
 import {
   Card,
   CardContent,
@@ -12,51 +14,86 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MatchResult } from "@/components/ChatMatchResult";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dog, User } from "lucide-react";
+import type { Dog as DogType } from "@/lib/types";
+
+interface MessageContentProps {
+  content: string;
+  dogDetails?: DogType | null;
+  showModal?: boolean;
+}
+
+interface UserSelections {
+  location: string;
+  breeds: string[];
+  ageRange: "young" | "adult" | "senior" | "";
+}
+
+interface ToolInvocationResult {
+  matchId: string;
+  dogDetails: DogType;
+  showModal: boolean;
+}
+
+interface ToolInvocationParameters {
+  location: string;
+  breeds: string[];
+  ageRange: UserSelections["ageRange"];
+}
 
 const INITIAL_MESSAGE =
   "Hi! I'm your AI Dog Matchmaker. I'll help you find your perfect furry friend! To get started, could you tell me your ZIP code?";
 
 function MessageContent({
   content,
-  matchId,
-}: {
-  content: string;
-  matchId?: string | null;
-}) {
-  // If the message contains the matched dog intro, replace it with the card
-  if (content.includes("Here's your matched dog:") && matchId) {
-    return (
-      <MatchResult
-        selections={{
-          location: "",
-          breeds: [],
-          ageRange: "",
-          matchId: matchId,
-        }}
-        onClose={() => {}}
-        onReset={() => {}}
-      />
-    );
-  }
-  return <span>{content}</span>;
+  dogDetails,
+  showModal,
+}: MessageContentProps) {
+  return (
+    <>
+      <div className="prose prose-invert max-w-none">
+        <ReactMarkdown>{content}</ReactMarkdown>
+      </div>
+
+      {dogDetails && showModal && (
+        <MatchedDog dog={dogDetails} onReset={() => null} />
+      )}
+    </>
+  );
+}
+
+function useScrollPosition() {
+  const [isBottom, setIsBottom] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolledToBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 100;
+      setIsBottom(scrolledToBottom);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check initial position
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return isBottom;
 }
 
 export default function AIChatWindow() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [matchId, setMatchId] = useState<string | null>(null);
-  const [currentSelections, setCurrentSelections] = useState<{
-    location: string;
-    breeds: string[];
-    ageRange: "young" | "adult" | "senior" | "";
-  }>({
+  const [, setCurrentSelections] = useState<UserSelections>({
     location: "",
     breeds: [],
     ageRange: "",
   });
-
+  const [dogDetails, setDogDetails] = useState<DogType | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const isBottom = useScrollPosition();
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     initialMessages: [
       {
@@ -75,23 +112,35 @@ export default function AIChatWindow() {
 
       if (
         toolPart?.type === "tool-invocation" &&
-        (toolPart as any).result?.matchId
+        (toolPart as { result?: ToolInvocationResult }).result?.matchId
       ) {
+        // Handle both match ID and dog details
+        const result = (toolPart as unknown as { result: ToolInvocationResult })
+          .result;
+
         // Find corresponding tool call to get parameters
         const toolCallPart = message.parts?.find(
           (part) =>
             part.type === "tool-invocation" &&
-            (part as any).tool === "matchDog",
+            (part as { tool?: string }).tool === "matchDog",
         );
 
         if (toolCallPart?.type === "tool-invocation") {
+          const params = (
+            toolCallPart as unknown as { parameters: ToolInvocationParameters }
+          ).parameters;
+          // Update selections
           setCurrentSelections((prev) => ({
             ...prev,
-            location: (toolCallPart as any).parameters.location,
-            breeds: (toolCallPart as any).parameters.breeds || [],
-            ageRange: (toolCallPart as any).parameters.ageRange,
+            location: params.location,
+            breeds: params.breeds || [],
+            ageRange: params.ageRange,
           }));
-          setMatchId((toolPart as any).result.matchId);
+
+          // Update match related state
+          setMatchId(result.matchId);
+          setDogDetails(result.dogDetails);
+          setShowModal(result.showModal);
         }
       }
     },
@@ -123,7 +172,11 @@ export default function AIChatWindow() {
   };
 
   return (
-    <Card className="fixed bottom-4 left-4 w-96 shadow-lg">
+    <Card
+      className={`fixed left-4 shadow-lg z-10 w-96 transition-all duration-200 ${
+        isBottom ? "bottom-24" : "bottom-4"
+      }`}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 py-2">
         <CardTitle className="text-sm font-medium">AI Dog Matchmaker</CardTitle>
         <Button
@@ -169,8 +222,11 @@ export default function AIChatWindow() {
                     >
                       <MessageContent
                         content={message.content}
-                        matchId={
-                          message.role === "assistant" ? matchId : undefined
+                        dogDetails={
+                          message.role === "assistant" ? dogDetails : undefined
+                        }
+                        showModal={
+                          message.role === "assistant" ? showModal : undefined
                         }
                       />
                     </div>

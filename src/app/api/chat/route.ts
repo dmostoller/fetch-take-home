@@ -4,7 +4,6 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import axios from "axios";
 import { BASE_URL } from "@/lib/constants";
-import type { MatchmakerSelections } from "@/lib/types";
 
 const AGE_RANGES = {
   young: { min: 0, max: 2 },
@@ -147,6 +146,7 @@ export async function POST(req: Request) {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify(resultIds),
+                credentials: "include",
               },
             );
 
@@ -159,11 +159,49 @@ export async function POST(req: Request) {
             }
 
             const { match } = await matchResponse.json();
+            const dogDetailsResponse = await fetchWithAuth(`${BASE_URL}/dogs`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify([match]), // Send as array since the endpoint expects an array of IDs
+              credentials: "include",
+            });
+
+            if (!dogDetailsResponse.ok) {
+              console.error(
+                "Failed to fetch dog details:",
+                dogDetailsResponse.status,
+              );
+              return {
+                success: false,
+                message: "Failed to retrieve dog details. Please try again.",
+              };
+            }
+
+            const dogDetailsArray = await dogDetailsResponse.json();
+            const dogDetails = dogDetailsArray[0]; // Get the first (and only) dog from the response
+
             return {
               success: true,
               matchId: match,
-              message:
-                "I've found a perfect match for you! Would you like to see your matched dog?",
+              dogDetails,
+              showModal: true,
+              message: `
+              ### 🐾 Meet Your Perfect Match! 🐾
+
+              **${dogDetails.name}** is a ${dogDetails.age}-year-old ${dogDetails.breed} who could be your new best friend!
+
+              ${dogDetails.img ? `![${dogDetails.name}](${dogDetails.img})` : ""}
+
+              **Quick Facts:**
+              - **Age:** ${dogDetails.age} years
+              - **Breed:** ${dogDetails.breed}
+              ${dogDetails.size ? `- **Size:** ${dogDetails.size}` : ""}
+
+              ${dogDetails.description ? `\n**About ${dogDetails.name}:**\n${dogDetails.description}` : ""}
+
+              Would you like to learn more about ${dogDetails.name}?`,
             };
           } catch (error) {
             console.error("Error during matchDog execution:", error);
@@ -176,13 +214,25 @@ export async function POST(req: Request) {
       }),
     },
     system: `You are a helpful AI assistant specializing in matching users with their perfect dog.
-    Guide users by asking:
-    1. For their ZIP code.
-    2. For breed preferences (if any).
-    3. For an age preference (young, adult, senior).
+    When presenting a dog match:
+    - Use markdown formatting to make the content engaging
+    - Present the dog's details in a clear, organized way
+    - Use emojis appropriately to add warmth to the message
+    - When the match includes a showModal flag, inform the user they can click for more details
+
+    When asking for location:
+    - Only accept 5-digit US ZIP codes
+    - If a user provides a city or state, help them find the appropriate ZIP code
+    - Say something like "I need a specific 5-digit ZIP code to search. For example, if you're in Manhattan, you might use 10001."
+    - Don't proceed with matching until you have a valid 5-digit ZIP code
+    
+    Guide users through these steps in order:
+    1. Get a valid 5-digit ZIP code (help them find one if needed)
+    2. Ask for breed preferences (if any)
+    3. Ask for age preference (young, adult, senior)
     
     After collecting these preferences, use the matchDog tool to obtain a match.
-    Be friendly and conversational.`,
+    Be friendly and conversational, but firm about needing a specific ZIP code.`,
   });
 
   return result.toDataStreamResponse();
